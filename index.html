@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover: usa a tela toda no iPhone (respeitando as bordas com safe-area) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <title>Agenda</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Tela de login (aparece só quando você não está logado) -->
+  <section id="login" class="login" hidden>
+    <form id="form-login">
+      <div class="logo"><span class="verde">~/</span>agenda<span class="verde">_</span></div>
+      <p class="prompt">$ login</p>
+      <label for="l-email">E-mail</label>
+      <input id="l-email" type="email" autocomplete="username" required>
+      <label for="l-senha">Senha</label>
+      <input id="l-senha" type="password" autocomplete="current-password" required>
+      <p id="login-erro" class="erro" role="alert"></p>
+      <button type="submit" class="primario">Entrar</button>
+    </form>
+  </section>
+
+  <div id="app" class="app" hidden>
+
+    <!-- Logo e status (no celular vira uma faixa no topo) -->
+    <aside class="lateral">
+      <div class="logo"><span class="verde">~/</span>agenda<span class="verde">_</span></div>
+      <ul id="status" class="status" aria-label="Status"></ul>
+      <button id="btn-sair" class="sair" type="button">sair</button>
+    </aside>
+
+    <main class="principal">
+      <header class="topo">
+        <div>
+          <p class="prompt">$ agenda --mes</p>
+          <h1 id="titulo-mes"></h1>
+        </div>
+        <div class="acoes">
+          <button id="btn-ant" aria-label="Mês anterior">&lt;</button>
+          <button id="btn-hoje">hoje</button>
+          <button id="btn-prox" aria-label="Próximo mês">&gt;</button>
+          <button id="btn-novo-topo" class="primario so-desktop">+ novo</button>
+        </div>
+      </header>
+
+      <div class="colunas">
+        <section class="painel" aria-label="Calendário">
+          <div class="semana">
+            <span>dom</span><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span>
+          </div>
+          <div id="grade" class="grade"></div>
+        </section>
+
+        <section id="painel-dia" class="painel" aria-label="Compromissos do dia">
+          <div class="dia-topo">
+            <h2 id="dia-titulo"></h2>
+            <span id="dia-contagem" class="mudo"></span>
+          </div>
+          <div id="lista"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Botão flutuante (só no celular) -->
+  <button id="btn-novo" class="fab so-mobile" hidden aria-label="Novo compromisso">+ novo</button>
+
+  <!-- Aviso rápido com opção de desfazer -->
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Formulário de criar/editar (no celular abre de baixo para cima) -->
+  <dialog id="dlg" aria-labelledby="dlg-titulo">
+    <form id="form">
+      <h2 id="dlg-titulo"></h2>
+
+      <label for="f-titulo">Título</label>
+      <input id="f-titulo" type="text" maxlength="80" required autocomplete="off">
+
+      <div class="duas">
+        <div><label for="f-data">Data</label><input id="f-data" type="date" required></div>
+        <div><label for="f-hora">Hora</label><input id="f-hora" type="time" required></div>
+      </div>
+
+      <label for="f-aviso">Avisar</label>
+      <select id="f-aviso">
+        <option value="0">Sem aviso</option>
+        <option value="5">5 min antes</option>
+        <option value="10">10 min antes</option>
+        <option value="15">15 min antes</option>
+        <option value="30">30 min antes</option>
+        <option value="60">1 hora antes</option>
+      </select>
+
+      <fieldset class="cores">
+        <legend>Cor</legend>
+        <label><input type="radio" name="cor" value="azul" checked><span style="--cor:var(--azul)"></span><b class="so-leitor">azul</b></label>
+        <label><input type="radio" name="cor" value="verde"><span style="--cor:var(--verde)"></span><b class="so-leitor">verde</b></label>
+        <label><input type="radio" name="cor" value="ambar"><span style="--cor:var(--ambar)"></span><b class="so-leitor">âmbar</b></label>
+        <label><input type="radio" name="cor" value="roxo"><span style="--cor:var(--roxo)"></span><b class="so-leitor">roxo</b></label>
+      </fieldset>
+
+      <label for="f-nota">Nota (opcional)</label>
+      <textarea id="f-nota" rows="2" maxlength="200"></textarea>
+
+      <div class="botoes">
+        <button type="submit" class="primario">Salvar</button>
+        <button type="button" id="f-cancelar">Cancelar</button>
+        <button type="button" id="f-excluir" class="perigo">Desagendar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Biblioteca do Supabase (versão fixa), suas chaves e o app -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

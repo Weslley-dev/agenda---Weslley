@@ -1,0 +1,116 @@
+/* ===== Cores e fontes: mude aqui para trocar o visual todo ===== */
+:root {
+  --fundo: #0d1117; --painel: #161b22; --borda: #21262d; --borda-forte: #30363d;
+  --texto: #c9d1d9; --titulo: #e6edf3; --mudo: #8b949e;
+  --verde: #3fb950; --verde-fundo: #0f2a1a; --azul: #58a6ff; --ambar: #d29922;
+  --roxo: #bc8cff; --vermelho: #f85149;
+  --fonte: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--texto); font-family: var(--fonte); -webkit-text-size-adjust: 100%; }
+h1, h2, p, ul { margin: 0; padding: 0; }
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+.verde { color: var(--verde); }
+.mudo { color: var(--mudo); font-size: 12px; }
+.so-desktop { display: none; }
+.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ===== Celular (base): tudo em uma coluna ===== */
+.app { display: flex; flex-direction: column; min-height: 100dvh; max-width: 1440px; margin: 0 auto; }
+.lateral { padding: calc(10px + env(safe-area-inset-top)) 16px 10px; border-bottom: 1px solid var(--borda); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.logo { font-size: 15px; font-weight: 700; color: var(--titulo); }
+.status { list-style: none; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 12px; color: var(--mudo); }
+.status li::before { content: '●'; margin-right: 6px; color: var(--cor, var(--mudo)); }
+.principal { flex: 1; min-width: 0; padding: 16px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+.topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
+.prompt { font-size: 12px; color: var(--mudo); }
+.topo h1 { font-size: 22px; color: var(--titulo); margin-top: 2px; }
+.acoes { display: flex; gap: 6px; }
+button { min-height: 44px; min-width: 44px; padding: 8px 14px; font-size: 14px; color: var(--texto); background: var(--painel); border: 1px solid var(--borda-forte); border-radius: 8px; }
+button:hover { border-color: var(--mudo); }
+.primario { font-weight: 700; color: var(--fundo); background: var(--verde); border-color: var(--verde); }
+.perigo { color: var(--vermelho); }
+
+.colunas { display: grid; gap: 16px; }
+.painel { border: 1px solid var(--borda); border-radius: 12px; padding: 12px; }
+.painel h2 { font-size: 15px; color: var(--titulo); }
+
+/* Calendário */
+.semana, .grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.semana { margin-bottom: 6px; font-size: 11px; color: var(--mudo); text-align: center; }
+.dia { min-height: 52px; min-width: 0; padding: 5px 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; background: var(--painel); border: 1px solid var(--borda); border-radius: 8px; font-size: 13px; }
+.dia.hoje { color: var(--verde); font-weight: 700; }
+.dia.selecionado { border-color: var(--verde); background: var(--verde-fundo); }
+.pontos { display: flex; flex-wrap: wrap; gap: 3px; }
+.ponto { width: 6px; height: 6px; border-radius: 50%; background: var(--cor); }
+
+/* Lista do dia */
+.dia-topo { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.item { display: grid; grid-template-columns: 44px 3px 1fr auto; gap: 10px; align-items: stretch; padding: 10px 0; border-top: 1px solid var(--borda); }
+.item .hora { padding-top: 2px; font-size: 13px; color: var(--mudo); }
+.item .barra { border-radius: 2px; background: var(--cor); }
+.item .editar { min-width: 0; min-height: 44px; padding: 0; text-align: left; background: none; border: 0; border-radius: 4px; color: inherit; }
+.item .nome { display: block; font-size: 14px; color: var(--titulo); overflow-wrap: anywhere; }
+.item .detalhe { display: block; margin-top: 3px; font-size: 12px; color: var(--mudo); overflow-wrap: anywhere; }
+.item .remover { align-self: center; font-size: 12px; color: var(--vermelho); }
+.vazio { padding: 20px 0 8px; font-size: 13px; line-height: 1.6; color: var(--mudo); border-top: 1px solid var(--borda); }
+
+/* Botão flutuante e aviso */
+.fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 5; min-height: 52px; padding: 0 22px; border-radius: 26px; font-weight: 700; color: var(--fundo); background: var(--verde); border-color: var(--verde); box-shadow: 0 6px 20px #00000080; }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 4px 4px 16px; font-size: 13px; color: var(--titulo); background: var(--painel); border: 1px solid var(--borda-forte); border-radius: 10px; box-shadow: 0 6px 20px #00000080; }
+.toast[hidden] { display: none; }
+.toast button { color: var(--verde); border: 0; background: transparent; }
+
+/* Formulário (bottom sheet no celular) */
+dialog { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); color: var(--texto); background: var(--painel); border: 1px solid var(--borda-forte); border-radius: 16px 16px 0 0; overflow-y: auto; }
+dialog::backdrop { background: #000000a0; }
+dialog h2 { margin-bottom: 8px; font-size: 17px; color: var(--titulo); }
+dialog label, dialog legend { display: block; margin: 14px 0 6px; padding: 0; font-size: 12px; color: var(--mudo); }
+input[type=text], input[type=date], input[type=time], select, textarea { width: 100%; min-height: 44px; padding: 10px 12px; font-size: 16px; /* 16px evita o zoom automático no iPhone */ color: var(--titulo); background: var(--fundo); border: 1px solid var(--borda-forte); border-radius: 8px; }
+textarea { resize: vertical; }
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cores { margin: 0; padding: 0; border: 0; }
+.cores { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.cores legend { width: 100%; float: left; }
+.cores label { position: relative; margin: 0; }
+.cores input { position: absolute; opacity: 0; }
+.cores span { display: block; width: 44px; height: 44px; border-radius: 50%; background: var(--cor); border: 3px solid var(--painel); }
+.cores input:checked + span { outline: 2px solid var(--titulo); }
+.cores input:focus-visible + span { outline: 2px solid var(--azul); outline-offset: 2px; }
+.botoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.botoes .primario { flex: 1 1 100%; min-height: 48px; }
+.botoes button { flex: 1; }
+.botoes .perigo[hidden] { display: none; }
+
+/* ===== Tela grande: barra lateral, duas colunas, formulário centralizado ===== */
+@media (min-width: 900px) {
+  .so-desktop { display: inline-block; }
+  .so-mobile { display: none; }
+  .app { flex-direction: row; }
+  .lateral { flex: 0 0 240px; flex-direction: column; align-items: flex-start; gap: 24px; padding: 24px 16px; border-bottom: 0; border-right: 1px solid var(--borda); }
+  .status { flex-direction: column; gap: 6px; font-size: 13px; }
+  .principal { padding: 24px 28px; }
+  .topo h1 { font-size: 24px; }
+  .colunas { grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: start; }
+  .painel { padding: 16px; }
+  .dia { min-height: 70px; padding: 6px 8px; }
+  dialog { width: 440px; margin: auto; border-radius: 14px; padding: 24px; }
+  .botoes .primario { flex: 1 1 auto; }
+  .toast { left: auto; right: 24px; bottom: 24px; width: 360px; }
+}
+
+/* ===== Passo 3: login e sair ===== */
+[hidden] { display: none !important; }   /* garante que "hidden" sempre esconde */
+.login { min-height: 100dvh; display: grid; place-items: center; padding: 16px; }
+.login form { width: 100%; max-width: 360px; padding: 24px 20px; background: var(--painel); border: 1px solid var(--borda-forte); border-radius: 14px; }
+.login .logo { margin-bottom: 4px; font-size: 18px; }
+.login label { display: block; margin: 14px 0 6px; font-size: 12px; color: var(--mudo); }
+input[type=email], input[type=password] { width: 100%; min-height: 44px; padding: 10px 12px; font-size: 16px; color: var(--titulo); background: var(--fundo); border: 1px solid var(--borda-forte); border-radius: 8px; }
+.login .primario { width: 100%; min-height: 48px; margin-top: 8px; }
+.erro { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--vermelho); }
+.sair { min-height: 32px; margin-left: auto; padding: 4px 10px; font-size: 12px; color: var(--mudo); }
+@media (min-width: 900px) { .sair { margin-left: 0; margin-top: auto; } }
