@@ -234,6 +234,57 @@ $('btn-hoje').addEventListener('click', () => {
   desenhar();
 });
 
+// ----- Notificações (passo 4.1: avisos com o app aberto) -----
+const AVISADOS = 'agenda.avisados';   // lembretes já mostrados (evita repetir)
+let registro = null;                  // service worker registrado
+
+async function iniciarSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    registro = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+  } catch { /* sem service worker: os avisos não funcionam */ }
+}
+
+// O navegador só aceita o pedido de permissão depois de um toque do usuário
+async function ativarNotificacoes() {
+  if (!('Notification' in window)) { avisar('Este navegador não suporta notificações.'); return; }
+  const r = await Notification.requestPermission();
+  avisar(r === 'granted' ? 'Notificações ativadas.' : 'Permissão não concedida. Libere nas configurações do navegador.');
+  desenharStatus();
+  atualizarBotaoNotif();
+}
+function atualizarBotaoNotif() {
+  $('btn-notif').hidden = !('Notification' in window) || Notification.permission === 'granted';
+}
+
+function lerAvisados() {
+  try { return JSON.parse(localStorage.getItem(AVISADOS)) || []; } catch { return []; }
+}
+
+// Roda a cada 30 s: mostra o aviso dos compromissos que chegaram na hora de avisar
+function conferirAvisos() {
+  if (!registro || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const agora = Date.now();
+  const feitos = lerAvisados();
+  eventos.forEach((ev) => {
+    if (ev.aviso === 0) return;
+    const inicio = new Date(`${ev.data}T${ev.hora}`).getTime();   // horário local
+    const momento = inicio - ev.aviso * 60000;
+    const chave = `${ev.id}|${ev.data}|${ev.hora}|${ev.aviso}`;
+    // dispara na hora do aviso (aceita até 2 min de atraso) e uma vez só
+    if (agora >= momento && agora < momento + 120000 && !feitos.includes(chave)) {
+      registro.showNotification(ev.titulo, {
+        body: `Começa às ${ev.hora} (em ${ev.aviso} min)`,
+        icon: 'icon-192.png',
+        tag: chave,
+      });
+      feitos.push(chave);
+    }
+  });
+  try { localStorage.setItem(AVISADOS, JSON.stringify(feitos.slice(-200))); } catch { /* ok */ }
+}
+
 // ----- Login e sessão -----
 // logado = true mostra a agenda; false mostra a tela de login
 function mostrar(logado) {
@@ -266,4 +317,8 @@ db.auth.onAuthStateChange((evento) => {
   const { data } = await db.auth.getSession();
   mostrar(!!data.session);
   if (data.session) { desenhar(); atualizar(); }
+  iniciarSW();
+  atualizarBotaoNotif();
+  $('btn-notif').addEventListener('click', ativarNotificacoes);
+  setInterval(conferirAvisos, 30000);
 })();

@@ -114,3 +114,7 @@ input[type=email], input[type=password] { width: 100%; min-height: 44px; padding
 .erro { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--vermelho); }
 .sair { min-height: 32px; margin-left: auto; padding: 4px 10px; font-size: 12px; color: var(--mudo); }
 @media (min-width: 900px) { .sair { margin-left: 0; margin-top: auto; } }
+
+
+/* ===== Passo 4: botão de notificações ===== */
+.notif { color: var(--ambar); border-color: var(--ambar); }
