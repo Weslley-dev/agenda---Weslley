@@ -253,6 +253,7 @@ async function ativarNotificacoes() {
   avisar(r === 'granted' ? 'Notificações ativadas.' : 'Permissão não concedida. Libere nas configurações do navegador.');
   desenharStatus();
   atualizarBotaoNotif();
+  if (r === 'granted') inscreverPush();   // passo 4.2: inscreve este aparelho no Web Push
 }
 function atualizarBotaoNotif() {
   $('btn-notif').hidden = !('Notification' in window) || Notification.permission === 'granted';
@@ -285,6 +286,32 @@ function conferirAvisos() {
   try { localStorage.setItem(AVISADOS, JSON.stringify(feitos.slice(-200))); } catch { /* ok */ }
 }
 
+// ----- Web Push (passo 4.2: aviso com o app fechado) -----
+// Converte a chave pública para o formato que o navegador exige
+function chaveParaBytes(base64url) {
+  const b64 = (base64url + '='.repeat((4 - (base64url.length % 4)) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+}
+
+// Inscreve este aparelho no Web Push e guarda a inscrição no banco
+async function inscreverPush() {
+  if (!registro || !('PushManager' in window) || Notification.permission !== 'granted') return;
+  try {
+    const sub = (await registro.pushManager.getSubscription())
+      || (await registro.pushManager.subscribe({
+           userVisibleOnly: true,
+           applicationServerKey: chaveParaBytes(VAPID_PUBLIC_KEY),
+         }));
+    const j = sub.toJSON();
+    const { error } = await db.from('push_subscriptions')
+      .upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth }, { onConflict: 'endpoint' });
+    if (error) throw error;
+  } catch (e) {
+    console.error('Push:', e);
+    avisar('Não foi possível ativar o aviso com o app fechado.');
+  }
+}
+
 // ----- Login e sessão -----
 // logado = true mostra a agenda; false mostra a tela de login
 function mostrar(logado) {
@@ -299,6 +326,7 @@ $('form-login').addEventListener('submit', async (e) => {
   const { error } = await db.auth.signInWithPassword({ email: $('l-email').value.trim(), password: $('l-senha').value });
   if (error) { $('login-erro').textContent = 'E-mail ou senha incorretos.'; return; }
   $('l-senha').value = '';
+  inscreverPush();
   eventos = carregar();
   mostrar(true);
   desenhar();
@@ -317,8 +345,9 @@ db.auth.onAuthStateChange((evento) => {
   const { data } = await db.auth.getSession();
   mostrar(!!data.session);
   if (data.session) { desenhar(); atualizar(); }
-  iniciarSW();
+  await iniciarSW();
   atualizarBotaoNotif();
+  if (data.session) inscreverPush();
   $('btn-notif').addEventListener('click', ativarNotificacoes);
   setInterval(conferirAvisos, 30000);
 })();
